@@ -7,6 +7,7 @@
         "php": ">=8.0.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "nelmio/api-doc-bundle": "^4.26",
         "symfony/console": "6.0.*",
         "symfony/dotenv": "6.0.*",
         "symfony/flex": "^2",
@@ -66,5 +67,8 @@
             "allow-contrib": false,
             "require": "6.0.*"
         }
+    },
+    "require-dev": {
+        "symfony/web-profiler-bundle": "6.0.*"
     }
 }

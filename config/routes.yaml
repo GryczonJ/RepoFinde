@@ -5,3 +5,19 @@ controllers:
 kernel:
     resource: ../src/Kernel.php
     type: annotation
+
+# Trasy dla dokumentacji API (Swagger UI)
+app.swagger_ui:
+    path: /api/doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+
+app.swagger_json:
+    path: /api/doc.json
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger }
+
+app.swagger_yaml:
+    path: /api/doc.yaml
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger }
