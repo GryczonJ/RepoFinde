@@ -32,7 +32,7 @@ class FindRepository extends AbstractController
      * @param string $order
      * @return Response
      */
-    //paginacjia
+    //paginacjia, try catch 
     #[Route('/popular', name: 'getListRepositoryName', methods: ['GET'])]
     public function getListRepositoryName(int $per_page = 50, DateTime $DateCreate, string $ProgramingLangage, string $order = "desc"): Response
     {
@@ -42,27 +42,25 @@ class FindRepository extends AbstractController
         // Sformatuj datę
         $formattedDate = $DateCreate->format('Y-m-d');
 
-    // Zbuduj zapytanie do GitHub API w czytelny sposób
-    $query = 'language:' . $ProgramingLangage . '+created:>' . $formattedDate;
+        // Zbuduj zapytanie do GitHub API w czytelny sposób
+        $query = 'language:' . $ProgramingLangage . '+created:>' . $formattedDate;
 
-       // Wykonaj zapytanie HTTP
-    $response = $this->client->request('GET', $url, [
-            'query' => [
-                'q' => $query,
-                'sort' => 'stars',
-                'order' => $order,
-                'per_page' => $per_page,
-            ],
-            'headers' => [
-                'Accept' => 'application/vnd.github+json',
-                'User-Agent' => 'SymfonyApp',
-            ],
-        ]);
+        // Wykonaj zapytanie HTTP
+        $response = $this->client->request('GET', $url, [
+                'query' => [
+                    'q' => $query,
+                    'sort' => 'stars',
+                    'order' => $order,
+                    'per_page' => $per_page,
+                ],
+                'headers' => [
+                    'Accept' => 'application/vnd.github+json',
+                    'User-Agent' => 'SymfonyApp',
+                ],
+            ]);
 
         $data = $response->toArray();
-        return new JsonResponse($data);
-         // Wyciąganie nazw repozytoriów
-    
+        return new JsonResponse($data); 
     }
 
 
