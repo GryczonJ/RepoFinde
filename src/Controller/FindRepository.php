@@ -24,85 +24,52 @@ class FindRepository extends AbstractController
     }
 
 
-    //, page, date, programing langage, language
-    /**
-     * @param int $per_page
-     * @param DateTime $DateCreate
-     * @param string $ProgramingLangage
-     * @param string $order
-     * @return Response
-     */
+  
     //paginacjia, try catch 
+    
     #[Route('/popular', name: 'getListRepositoryName', methods: ['GET'])]
-    public function getListRepositoryName(int $per_page = 50, DateTime $DateCreate, string $ProgramingLangage, string $order = "desc"): Response
+    /**
+     * Pobiera listę popularnych repozytoriów z GitHub według liczby gwiazdek.
+     *
+     * @param int $page Numer strony wyników (paginacja), domyślnie 1.
+     * @param int $per_page Liczba wyników na stronę (max 100 wg GitHub API), domyślnie 50.
+     * @param DateTime|null $DateCreate (Opcjonalnie) Repozytoria utworzone po tej dacie.
+     * @param string $ProgramingLangage Język programowania (np. PHP, Python, JavaScript).
+     * @param string $order Kolejność sortowania wyników: 'desc' (malejąco) lub 'asc' (rosnąco), domyślnie 'desc'.
+     *
+     * @return Response JSON z wynikami wyszukiwania repozytoriów lub błąd.
+     */
+    public function getListRepositoryName(int $page = 1, int $per_page = 50, ?DateTime $DateCreate, string $ProgramingLangage, string $order = "desc"): Response
     {
-        // Składanie URL-a do wyszukiwania repozytoriów
         $url = 'https://api.github.com/search/repositories';
-        
-        // Sformatuj datę
-        $formattedDate = $DateCreate->format('Y-m-d');
 
-        // Zbuduj zapytanie do GitHub API w czytelny sposób
-        $query = 'language:' . $ProgramingLangage . '+created:>' . $formattedDate;
+        $query = 'language:' . $ProgramingLangage;
+        //$query = 'language:' . $ProgramingLangage . '+created:>' . $formattedDate;
+        if ($DateCreate !== null) {
+                $formattedDate = $DateCreate->format('Y-m-d');
+                $query .= '+created:>' . $formattedDate;
+            }
 
-        // Wykonaj zapytanie HTTP
-        $response = $this->client->request('GET', $url, [
-                'query' => [
-                    'q' => $query,
-                    'sort' => 'stars',
-                    'order' => $order,
-                    'per_page' => $per_page,
-                ],
-                'headers' => [
-                    'Accept' => 'application/vnd.github+json',
-                    'User-Agent' => 'SymfonyApp',
-                ],
-            ]);
+         try {
+            $response = $this->client->request('GET', $url, [
+                    'query' => [
+                        'q' => $query,
+                        'sort' => 'stars',
+                        'order' => $order,
+                        'per_page' => $per_page,
+                        'page' => $page,
+                    ],
+                    'headers' => [
+                        'Accept' => 'application/vnd.github+json',
+                        'User-Agent' => 'SymfonyApp',
+                    ],
+                ]);
 
-        $data = $response->toArray();
+            $data = $response->toArray();
+            } 
+            catch (Exception $e) {
+                 return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
         return new JsonResponse($data); 
-    }
-
-
-    // Zorbić własną typ by nie dało się wprowadzić innego typu
-   public function getAdvancedListRepositoryName(string $type, string $sort ): Response
-    {
-        // Składanie URL-a do wyszukiwania repozytoriów
-        $url = 'https://api.github.com/search/repositories';
-        
-        // Wykonanie zapytania
-        $response = $this->client->request('GET', $url, [
-            'query' => [
-                'q' => $query,
-                'sort' => 'name',
-                'order' => $sort,
-                'per_page' => $howMany
-            ],
-            'headers' => [
-                'Accept' => 'application/vnd.github+json',
-                'User-Agent' => 'SymfonyApp', // GitHub wymaga nagłówka User-Agent
-            ],
-        ]);
-
-        $data = $response->toArray();
-
-         // Wyciąganie nazw repozytoriów
-        $repoNames = array_map(fn($item) => $item['full_name'], $data['items']);
-        // Zwracanie odpowiedzi w formacie JSON
-        return $this->json($repoNames);
-    }
-    
-    //osobna klasa
-    #[Route('/favorites', name: 'addFavorite', methods: ['Get'])]
-    public function addFavorite():JsonResponse
-    {
-        return new JsonResponse(['message' => 'Dodano do ulubionych']);
-    }
-    
-    #[Route('/favorites', name: 'get_favorites', methods: ['GET'])]
-    public function getFavorites(): JsonResponse
-    {
-        // ... logika pobierania ulubionych ...
-        return new JsonResponse(/* ... lista ulubionych ... */);
     }
 }
