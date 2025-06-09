@@ -22,11 +22,7 @@ class FindRepository extends AbstractController
     {
         $this->client = $client;
     }
-
-
-  
-    //paginacjia, try catch 
-    
+ 
     #[Route('/popular', name: 'getListRepositoryName', methods: ['GET'])]
     /**
      * Pobiera listę popularnych repozytoriów z GitHub według liczby gwiazdek.
