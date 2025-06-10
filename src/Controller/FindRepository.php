@@ -16,8 +16,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FindRepository extends AbstractController
 {
+    /**
+     * Klient HTTP używany do wykonywania zapytań do zewnętrznego API (GitHub).
+     *
+     * @var HttpClientInterface
+     */
     private HttpClientInterface $client;
-
+ 
+    /**
+     * Konstruktor kontrolera. Wstrzykuje klienta HTTP.
+     *
+     * @param HttpClientInterface $client Klient HTTP
+     */
     public function __construct(HttpClientInterface $client)
     {
         $this->client = $client;
@@ -40,7 +50,7 @@ class FindRepository extends AbstractController
         $url = 'https://api.github.com/search/repositories';
 
         $query = 'language:' . $ProgramingLangage;
-        //$query = 'language:' . $ProgramingLangage . '+created:>' . $formattedDate;
+
         if ($DateCreate !== null) {
                 $formattedDate = $DateCreate->format('Y-m-d');
                 $query .= '+created:>' . $formattedDate;
