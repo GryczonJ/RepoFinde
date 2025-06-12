@@ -9,6 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Uid\Guid;
 
+
+
 class FavoritesController extends AbstractController
 {
     /**
