@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Service;
-use Symfony\Component\Uid\Guid;
+use Ramsey\Uuid\Uuid;
 
 class FavoritesService
 {
@@ -17,12 +17,13 @@ class FavoritesService
      * Dodaje repozytorium do listy ulubionych dla danego użytkownika.
      * Jeśli użytkownik lub repozytorium jeszcze nie istnieje w zbiorze, zostanie dodane.
      *
-     * @param Guid $userId       Identyfikator użytkownika (np. UUID lub login)
-     * @param int    $repositoryId Identyfikator repozytorium (z GitHuba lub innego źródła)
+     * @param String $userId Identyfikator użytkownika normalnie Uuid (UUID) jako string
+     *                       (np. '123e4567-e89b-12d3-a456-426614174000')
+     * @param int $repositoryId Identyfikator repozytorium (z GitHuba lub innego źródła)
      *
      * @return void
      */
-    public function addFavorite(Guid $userId, int $repositoryId): void
+    public function addFavorite(String $userId, int $repositoryId): void
     {
         if (!isset($this->favorites[$userId])) {
             $this->favorites[$userId] = [];
@@ -36,11 +37,11 @@ class FavoritesService
     /**
      * Zwraca listę ulubionych repozytoriów danego użytkownika.
      *
-     * @param Guid $userId Identyfikator użytkownika
+     * @param String $userId Identyfikator użytkownika
      *
      * @return int[] Tablica ID ulubionych repozytoriów
      */
-    public function getFavorites(Guid $userId): array
+    public function getFavorites(String $userId): array
     {
         return $this->favorites[$userId] ?? [];
     }

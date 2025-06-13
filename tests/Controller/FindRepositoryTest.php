@@ -1,61 +1,98 @@
+<?php
+namespace App\Tests\Controller;
+use App\Controller\FindRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Service\GithubRepositoryService; // Zmień na swoją przestrzeń nazw
-use DateTime;
+use App\Service\FavoritesService;
 
-class RepositoryServiceTest extends TestCase
+class FindRepositoryTest extends TestCase
 {
-    public function testGetListRepositoryNameReturnsJsonResponse()
+     public function testGetListRepositoryNameReturnsJsonResponse()
     {
-        // Arrange
-        $mockHttpClient = $this->createMock(HttpClientInterface::class);
-        $mockResponse = $this->createMock(ResponseInterface::class);
-        $mockResponseData = [
-            'total_count' => 1,
+        $expectedData = [
             'items' => [
-                ['name' => 'test-repo', 'stargazers_count' => 100]
+                ['full_name' => 'symfony/symfony'],
+                ['full_name' => 'laravel/laravel'],
             ]
         ];
 
-        $mockResponse->method('toArray')->willReturn($mockResponseData);
-        $mockHttpClient->method('request')->willReturn($mockResponse);
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $responseMock->method('toArray')->willReturn($expectedData);
 
-        $service = new GithubRepositoryService($mockHttpClient);
+        $clientMock = $this->createMock(HttpClientInterface::class);
+        $clientMock->method('request')->willReturn($responseMock);
 
-        $date = new DateTime('2024-01-01');
-        $lang = 'PHP';
+        $controller = new FindRepository($clientMock);
 
-        // Act
-        $result = $service->getListRepositoryName(1, 50, $date, $lang);
+        $response = $controller->getListRepositoryName(
+            page: 1,
+            per_page: 2,
+            DateCreate: null,
+            ProgramingLangage: "PHP",
+            order: "desc"
+        );
 
-        // Assert
-        $this->assertInstanceOf(JsonResponse::class, $result);
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertSame(200, $response->getStatusCode());
 
-        $data = json_decode($result->getContent(), true);
-        $this->assertEquals('test-repo', $data['items'][0]['name']);
-        $this->assertEquals(100, $data['items'][0]['stargazers_count']);
+        $decodedContent = json_decode($response->getContent(), true);
+        $this->assertEquals($expectedData, $decodedContent);
     }
 
-    public function testGetListRepositoryNameHandlesException()
+    public function testGetListRepositoryNameWithPagination()
     {
-        // Arrange
-        $mockHttpClient = $this->createMock(HttpClientInterface::class);
-        $mockHttpClient->method('request')->willThrowException(new \Exception('API error'));
+        $page = 3;
+        $perPage = 10;
 
-        $service = new GithubRepositoryService($mockHttpClient);
+        $expectedData = [
+            'total_count' => 1000,
+            'items' => [
+                ['full_name' => 'repo/name1'],
+                ['full_name' => 'repo/name2'],
+            ]
+        ];
 
-        // Act
-        $response = $service->getListRepositoryName(1, 50, null, 'PHP');
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $responseMock->expects($this->once())
+            ->method('toArray')
+            ->willReturn($expectedData);
 
-        // Assert
+        $clientMock = $this->createMock(HttpClientInterface::class);
+
+        $clientMock->expects($this->once())
+            ->method('request')
+            ->with(
+                'GET',
+                'https://api.github.com/search/repositories',
+                $this->callback(function ($options) use ($page, $perPage) {
+                    return isset($options['query']) &&
+                        $options['query']['page'] === $page &&
+                        $options['query']['per_page'] === $perPage &&
+                        strpos($options['query']['q'], 'language:PHP') === 0 &&
+                        $options['query']['sort'] === 'stars' &&
+                        $options['query']['order'] === 'desc' &&
+                        isset($options['headers']['User-Agent']) &&
+                        $options['headers']['User-Agent'] === 'SymfonyApp';
+                })
+            )
+            ->willReturn($responseMock);
+
+        $controller = new FindRepository($clientMock);
+
+        $response = $controller->getListRepositoryName(
+            $page,
+            $perPage,
+            null,
+            'PHP',
+            'desc'
+        );
+
         $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
 
-        $data = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('error', $data);
-        $this->assertEquals('API error', $data['error']);
+        $decodedContent = json_decode($response->getContent(), true);
+        $this->assertEquals($expectedData, $decodedContent);
     }
 }
