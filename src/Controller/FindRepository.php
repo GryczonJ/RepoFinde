@@ -48,9 +48,6 @@ class FindRepository extends AbstractController
     {
         $url = 'https://api.github.com/search/repositories';
 
-        $query = 'language:' . $ProgramingLangage;
-    
-
         $filters = ['stars:>=0']; 
 
         if ($ProgramingLangage !== null) {
