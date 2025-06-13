@@ -16,7 +16,7 @@ class FavoritesServiceTest extends TestCase
 
     public function testAddFavoriteAddsRepositoryForUser(): void
     {
-        $userId = Uuid::uuid4()->to_string(); // Uuid jako string
+        $userId = Uuid::uuid4()->toString(); // Uuid jako string
         $repoId = 42;
 
         $this->service->addFavorite($userId, $repoId);
@@ -26,7 +26,7 @@ class FavoritesServiceTest extends TestCase
 
     public function testAddFavoriteDoesNotAddDuplicate(): void
     {
-        $userId = Uuid::uuid4()->to_string(); // Uuid jako string;
+        $userId = Uuid::uuid4()->toString(); // Uuid jako string;
         $repoId = 101;
 
         $this->service->addFavorite($userId, $repoId);
@@ -40,15 +40,15 @@ class FavoritesServiceTest extends TestCase
 
     public function testGetFavoritesReturnsEmptyArrayForUnknownUser(): void
     {
-        $unknownUser = Uuid::uuid4()->to_string(); // Uuid jako string;
+        $unknownUser = Uuid::uuid4()->toString(); // Uuid jako string;
 
         $this->assertEquals([], $this->service->getFavorites($unknownUser));
     }
 
     public function testAddFavoritesForMultipleUsers(): void
     {
-        $user1 = Uuid::uuid4()->to_string(); // Uuid jako string;
-        $user2 = Uuid::uuid4()->to_string(); // Uuid jako string;
+        $user1 = Uuid::uuid4()->toString(); // Uuid jako string;
+        $user2 = Uuid::uuid4()->toString(); // Uuid jako string;
 
         $this->service->addFavorite($user1, 1);
         $this->service->addFavorite($user2, 2);
