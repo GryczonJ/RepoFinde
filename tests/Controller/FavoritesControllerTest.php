@@ -5,7 +5,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use App\Service\FavoritesService;
 
-class FavoritesTest  extends TestCase
+class FavoritesControllerTest  extends TestCase
 {
     private FavoritesService $service;
 

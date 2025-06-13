@@ -66,11 +66,12 @@ class FindRepositoryTest extends TestCase
             ->with(
                 'GET',
                 'https://api.github.com/search/repositories',
-                $this->callback(function ($options) use ($page, $perPage) {
+              $this->callback(function ($options) use ($page, $perPage) {
                     return isset($options['query']) &&
                         $options['query']['page'] === $page &&
                         $options['query']['per_page'] === $perPage &&
-                        strpos($options['query']['q'], 'language:PHP') === 0 &&
+                        str_contains($options['query']['q'], 'language:PHP') &&
+                        str_contains($options['query']['q'], 'stars:>=0') &&
                         $options['query']['sort'] === 'stars' &&
                         $options['query']['order'] === 'desc' &&
                         isset($options['headers']['User-Agent']) &&

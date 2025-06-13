@@ -44,16 +44,23 @@ class FindRepository extends AbstractController
      *
      * @return Response JSON z wynikami wyszukiwania repozytoriów lub błąd.
      */
-    public function getListRepositoryName(int $page = 1, int $per_page = 50, ?DateTime $DateCreate, ?string $ProgramingLangage="PHP", string $order = "desc"): Response
+    public function getListRepositoryName(int $page = 1, int $per_page = 50, ?DateTime $DateCreate, ?string $ProgramingLangage = null, string $order = "desc"): Response
     {
         $url = 'https://api.github.com/search/repositories';
 
         $query = 'language:' . $ProgramingLangage;
     
+
+        $filters = ['stars:>=0']; 
+
+        if ($ProgramingLangage !== null) {
+            $filters[] = 'language:' . $ProgramingLangage;
+        }
         if ($DateCreate !== null) {
-                $formattedDate = $DateCreate->format('Y-m-d');
-                $query .= '+created:>' . $formattedDate;
-            }
+            $filters[] = 'created:>' . $DateCreate->format('Y-m-d');
+        }
+
+        $query = implode('+', $filters);
 
          try {
             $response = $this->client->request('GET', $url, [

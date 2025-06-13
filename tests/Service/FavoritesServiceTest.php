@@ -3,6 +3,7 @@ namespace App\Tests\Service;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use App\Service\FavoritesService;
 
 class FavoritesServiceTest extends TestCase
 {
