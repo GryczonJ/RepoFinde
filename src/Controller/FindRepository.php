@@ -91,16 +91,17 @@ class FindRepository extends AbstractController
         $DateCreateString = $request->query->get('DateCreate');
         
         $url = 'https://api.github.com/search/repositories';
-       $DateCreate = DateTime::createFromFormat('Y-m-d', $DateCreateString);
        
-       if ($ProgramingLangage === null&& $DateCreate === null) {
+       
+       if ($ProgramingLangage === null&& $DateCreateString === null) {
              $filters = ['stars:>=0']; 
         }
        else {
             if ($ProgramingLangage !== null) {
                 $filters[] = 'language:' . $ProgramingLangage;
             }
-            if ($DateCreate !== null) {
+            if ($DateCreateString !== null) {
+                $DateCreate = DateTime::createFromFormat('Y-m-d', $DateCreateString);
                     $filters[] = 'created:>' . $DateCreate->format('Y-m-d');
                 }
         }
