@@ -88,24 +88,36 @@ class FindRepository extends AbstractController
         $per_page = (int) $request->query->get('per_page', 50);
         $order = $request->query->get('order', 'desc');
         $ProgramingLangage = $request->query->get('ProgramingLangage');
-        $DateCreate = $request->query->get('DateCreate');
+        $DateCreateString = $request->query->get('DateCreate');
         
         $url = 'https://api.github.com/search/repositories';
+       $DateCreate = DateTime::createFromFormat('Y-m-d', $DateCreateString);
        
-        if ($ProgramingLangage === null && $DateCreate === null) {
-            $filters = ['stars:>=0']; 
+       if ($ProgramingLangage === null&& $DateCreate === null) {
+             $filters = ['stars:>=0']; 
         }
-        else{
+       else {
             if ($ProgramingLangage !== null) {
                 $filters[] = 'language:' . $ProgramingLangage;
             }
             if ($DateCreate !== null) {
-                $filters[] = 'created:>' . $DateCreate;//->format('Y-m-d')
-            }
-            
+                    $filters[] = 'created:>' . $DateCreate->format('Y-m-d');
+                }
         }
-        
-        $query = implode('+', $filters);
+
+        $query = implode(' ', $filters);
+        // Debug
+        //     dd([
+        // 'final_query_string' => $query,
+        // 'request_url' => $url,
+        // 'query_params' => [
+        //     'q' => $query,
+        //     'sort' => 'stars',
+        //     'order' => $order,
+        //     'per_page' => $per_page,
+        //     'page' => $page,
+        //     ]
+        // ]);
 
          try {
             $response = $this->client->request('GET', $url, [

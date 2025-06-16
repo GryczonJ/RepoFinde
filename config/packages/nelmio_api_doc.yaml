@@ -18,7 +18,7 @@ nelmio_api_doc:
             - url: http://localhost:8000
     areas:
         default:
-            path_patterns: [ ^/api, ^/repositories ]
+            path_patterns: [ ^/api, ^/repositories,  ^/favorites ]
     models:
         use_jms: false
     media_types:

@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use OpenApi\Annotations as OA;
 use App\Service\FavoritesService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Response; 
 
 class FavoritesController extends AbstractController
 {
@@ -27,15 +29,34 @@ class FavoritesController extends AbstractController
     }
 
     #[Route('/favorites', name: 'addFavorite', methods: ['POST'])]
-    /**
-     * Dodaje repozytorium do ulubionych użytkownika.
-     *
-     * Oczekiwane parametry w zapytaniu POST:
-     * - userId (string): unikalny identyfikator użytkownika
-     * - repositoryId (int): identyfikator repozytorium
-     *
-     * @param Request $request Obiekt żądania HTTP
-     * @return JsonResponse Komunikat o sukcesie lub błąd walidacji
+   /**
+     * @OA\Post(
+     *     path="/favorites",
+     *     summary="Dodaje repozytorium do ulubionych użytkownika",
+     *     description="Dodaje repozytorium do ulubionych użytkownika.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"userId","repositoryId"},
+     *             @OA\Property(property="userId", type="string", description="Unikalny identyfikator użytkownika"),
+     *             @OA\Property(property="repositoryId", type="integer", description="Identyfikator repozytorium")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Repozytorium dodane do ulubionych",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Repozytorium zostało dodane do ulubionych.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Błąd walidacji danych",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Niepoprawne dane wejściowe.")
+     *         )
+     *     )
+     * )
      */
     public function addFavorite(Request $request): JsonResponse
     {
@@ -53,13 +74,38 @@ class FavoritesController extends AbstractController
 
     #[Route('/favorites', name: 'get_favorites', methods: ['GET'])]
     /**
-     * Zwraca listę ulubionych repozytoriów dla użytkownika.
-     *
-     * Oczekiwany parametr w zapytaniu GET:
-     * - userId (string): unikalny identyfikator użytkownika
-     *
-     * @param Request $request Obiekt żądania HTTP
-     * @return JsonResponse Lista ulubionych repozytoriów lub błąd walidacji
+     * @OA\Get(
+     *     path="/favorites",
+     *     summary="Zwraca listę ulubionych repozytoriów dla użytkownika",
+     *     description="Zwraca listę ulubionych repozytoriów dla użytkownika.",
+     *     @OA\Parameter(
+     *         name="userId",
+     *         in="query",
+     *         required=true,
+     *         description="Unikalny identyfikator użytkownika",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista ulubionych repozytoriów",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=123),
+     *                 @OA\Property(property="name", type="string", example="repository-name"),
+     *                 @OA\Property(property="url", type="string", example="https://github.com/user/repository")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Błąd walidacji danych",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Niepoprawny parametr userId.")
+     *         )
+     *     )
+     * )
      */
     public function getFavorites(Request $request): JsonResponse
     {
