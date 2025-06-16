@@ -2,7 +2,7 @@
 
 namespace App\Service;
 use Ramsey\Uuid\Uuid;
-
+use OpenApi\Annotations as OA;
 class FavoritesService
 {
      /**
