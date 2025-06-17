@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Service\FavoritesService;
 use Symfony\Component\HttpFoundation\Request;
 
-
-
 class FindRepositoryTest extends TestCase
 {
     private function mockClientReturning(array $data): HttpClientInterface

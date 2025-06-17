@@ -92,47 +92,55 @@ class FindRepository extends AbstractController
         
         $url = 'https://api.github.com/search/repositories';
        
-       
-       if ($ProgramingLangage === null&& $DateCreateString === null) {
-             $filters = ['stars:>=0']; 
-        }
-       else {
-            if ($ProgramingLangage !== null) {
+       $filters = [];
+
+        if ($ProgramingLangage) {
                 $filters[] = 'language:' . $ProgramingLangage;
             }
-            if ($DateCreateString !== null) {
-                $DateCreate = DateTime::createFromFormat('Y-m-d', $DateCreateString);
-                    $filters[] = 'created:>' . $DateCreate->format('Y-m-d');
-                }
+        if ($DateCreateString) {
+             $dateCreate = DateTime::createFromFormat('Y-m-d', $DateCreateString);
+            if (!$dateCreate) {
+                return new JsonResponse(
+                    ['error' => 'Nieprawidłowy format daty. Oczekiwany: Y-m-d.'], Response::HTTP_BAD_REQUEST
+                );
+            }
+        }
+        
+        if (empty($filters)) {
+            $filters[] = 'stars:>=0';
         }
 
         $query = implode(' ', $filters);
 
          try {
-            $response = $this->client->request('GET', $url, [
-                    'query' => [
-                        'q' => $query,
-                        'sort' => 'stars',
-                        'order' => $order,
-                        'per_page' => $per_page,
-                        'page' => $page,
-                    ],
-                    'headers' => [
-                        'Accept' => 'application/vnd.github+json',
-                        'User-Agent' => 'SymfonyApp',
-                        'Authorization' => 'Bearer ' . $_ENV['GITHUB_TOKEN'], 
-                    ],
-                ]);
+                $response = $this->client->request('GET', $url, [
+                        'query' => [
+                            'q' => $query,
+                            'sort' => 'stars',
+                            'order' => $order,
+                            'per_page' => $per_page,
+                            'page' => $page,
+                        ],
+                        'headers' => [
+                            'Accept' => 'application/vnd.github+json',
+                            'User-Agent' => 'SymfonyApp',
+                            'Authorization' => 'Bearer ' . $_ENV['GITHUB_TOKEN'], 
+                        ],
+                    ]);
 
-            $data = $response->toArray();
+                $data = $response->toArray();
+                return new JsonResponse($data, Response::HTTP_OK);
+
             } 
-            catch (Exception $e) {
-                 return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            catch (\Exception $e) {
+                return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
             }
-        return new JsonResponse($data); 
     }
 }
 /*
+    Instrukcje uruchomienia aplikacji Symfony:
+    symfony serve 
+
     generowanie dokumentacji OpenAPI:
     php bin/console nelmio:apidoc:dump --format=json > openapi.json
 
