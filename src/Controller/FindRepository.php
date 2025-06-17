@@ -107,18 +107,6 @@ class FindRepository extends AbstractController
         }
 
         $query = implode(' ', $filters);
-        // Debug
-        //     dd([
-        // 'final_query_string' => $query,
-        // 'request_url' => $url,
-        // 'query_params' => [
-        //     'q' => $query,
-        //     'sort' => 'stars',
-        //     'order' => $order,
-        //     'per_page' => $per_page,
-        //     'page' => $page,
-        //     ]
-        // ]);
 
          try {
             $response = $this->client->request('GET', $url, [
@@ -144,3 +132,13 @@ class FindRepository extends AbstractController
         return new JsonResponse($data); 
     }
 }
+/*
+    generowanie dokumentacji OpenAPI:
+    php bin/console nelmio:apidoc:dump --format=json > openapi.json
+
+    Testowanie i przeglądanie dokumentacji OpenAPI:
+    http://127.0.0.1:8000/api/doc
+
+    Przykładowe zapytanie do API:
+    http://localhost:8000/repositories?page=1&per_page=50&DateCreate=2019-01-01&ProgramingLangage=php&order=desc
+*/

@@ -28,19 +28,25 @@ class FavoritesController extends AbstractController
         $this->favoritesService = $favoritesService;
     }
 
-    #[Route('/favorites', name: 'addFavorite', methods: ['POST'])]
+    #[Route('/favorites/add', name: 'addFavorite', methods: ['POST'])]
    /**
      * @OA\Post(
-     *     path="/favorites",
+     *     path="/favorites/add",
      *     summary="Dodaje repozytorium do ulubionych użytkownika",
-     *     description="Dodaje repozytorium do ulubionych użytkownika.",
+     *     description="Dodaje repozytorium do ulubionych użytkownika na podstawie identyfikatora użytkownika i identyfikatora repozytorium.",
+     *     tags={"Favorites"},
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             required={"userId","repositoryId"},
-     *             @OA\Property(property="userId", type="string", description="Unikalny identyfikator użytkownika"),
-     *             @OA\Property(property="repositoryId", type="integer", description="Identyfikator repozytorium")
-     *         )
+     *         content={
+     *             @OA\MediaType(
+     *                 mediaType="application/json",
+     *                 @OA\Schema(
+     *                     required={"userId", "repositoryId"},
+     *                     @OA\Property(property="userId", type="string", description="Unikalny identyfikator użytkownika"),
+     *                     @OA\Property(property="repositoryId", type="string", description="Identyfikator repozytorium z GitHub")
+     *                 )
+     *             )
+     *         }
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -53,31 +59,47 @@ class FavoritesController extends AbstractController
      *         response=400,
      *         description="Błąd walidacji danych",
      *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string", example="Niepoprawne dane wejściowe.")
+     *             @OA\Property(property="error", type="string", example="userId i repositoryId są wymagane")
      *         )
-     *     )
+     *     ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Nieoczekiwany błąd serwera",
+     *          @OA\JsonContent(
+     *          @OA\Property(property="error", type="string", example="Nieoczekiwany błąd.")
+     *          )
+     *      )
      * )
      */
     public function addFavorite(Request $request): JsonResponse
     {
-        $userId = $request->get('userId');
-        $repositoryId = (int) $request->get('repositoryId');
+        $data = json_decode($request->getContent(), true);
+        $userId = $data['userId'] ?? null;
+        $repositoryId = $data['repositoryId'] ?? null;
 
         if (!$userId || !$repositoryId) {
             return new JsonResponse(['error' => 'userId i repositoryId są wymagane'], 400);
         }
 
-        $this->favoritesService->addFavorite($userId, $repositoryId);
+        $status = $this->favoritesService->addFavorite($userId, $repositoryId);
+        
+        if ($status === 'added') {
+            return new JsonResponse(['message' => 'Repozytorium zostało dodane do ulubionych.'], 200);
+        }
 
-        return new JsonResponse(['message' => 'Dodano do ulubionych']);
+        if ($status === 'already_exists') {
+            return new JsonResponse(['message' => 'Repozytorium już znajduje się na liście ulubionych.'], 200);
+        }
+        return new JsonResponse(['error' => 'Nieoczekiwany błąd.'], 500);
     }
 
-    #[Route('/favorites', name: 'get_favorites', methods: ['GET'])]
+    #[Route('favorites', name: 'get_favorites', methods: ['GET'])]
     /**
      * @OA\Get(
      *     path="/favorites",
      *     summary="Zwraca listę ulubionych repozytoriów dla użytkownika",
      *     description="Zwraca listę ulubionych repozytoriów dla użytkownika.",
+     *     tags={"Favorites"},
      *     @OA\Parameter(
      *         name="userId",
      *         in="query",
@@ -96,13 +118,6 @@ class FavoritesController extends AbstractController
      *                 @OA\Property(property="name", type="string", example="repository-name"),
      *                 @OA\Property(property="url", type="string", example="https://github.com/user/repository")
      *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Błąd walidacji danych",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string", example="Niepoprawny parametr userId.")
      *         )
      *     )
      * )
