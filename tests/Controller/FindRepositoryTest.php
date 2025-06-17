@@ -6,10 +6,58 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Service\FavoritesService;
+use Symfony\Component\HttpFoundation\Request;
+
+
 
 class FindRepositoryTest extends TestCase
 {
-     public function testGetListRepositoryReturnsJsonResponse()
+    private function mockClientReturning(array $data): HttpClientInterface
+    {
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $responseMock->method('toArray')->willReturn($data);
+
+        $clientMock = $this->createMock(HttpClientInterface::class);
+        $clientMock->method('request')->willReturn($responseMock);
+
+        return $clientMock;
+    }
+
+    public function testResponseIsJsonResponse(): void
+    {
+        $controller = new FindRepository($this->mockClientReturning([]));
+
+        $request = new Request(query: [
+            'page' => 1,
+            'per_page' => 5,
+            'DateCreate' => null,
+            'ProgramingLangage' => "PHP",
+            'order' => "desc"
+        ]);
+
+        $response = $controller->getListRepository($request);
+
+        $this->assertInstanceOf(JsonResponse::class, $response);
+    }
+
+    public function testResponseHasStatusCode200(): void
+    {
+        $controller = new FindRepository($this->mockClientReturning([]));
+
+        $request = new Request(query: [
+            'page' => 1,
+            'per_page' => 5,
+            'DateCreate' => null,
+            'ProgramingLangage' => 'PHP',
+            'order' => 'desc'
+        ]);
+
+        $response = $controller->getListRepository($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
+    public function testResponseReturnsExpectedData(): void
     {
         $expectedData = [
             'items' => [
@@ -18,46 +66,27 @@ class FindRepositoryTest extends TestCase
             ]
         ];
 
-        $responseMock = $this->createMock(ResponseInterface::class);
-        $responseMock->method('toArray')->willReturn($expectedData);
+        $controller = new FindRepository($this->mockClientReturning($expectedData));
 
-        $clientMock = $this->createMock(HttpClientInterface::class);
-        $clientMock->method('request')->willReturn($responseMock);
+        $request = new Request(query: [
+            'page' => 1,
+            'per_page' => 2,
+            'DateCreate' => null,
+            'ProgramingLangage' => 'PHP',
+            'order' => 'desc'
+        ]);
 
-        $controller = new FindRepository($clientMock);
-
-        $response = $controller->getListRepository(
-            page: 1,
-            per_page: 2,
-            DateCreate: null,
-            ProgramingLangage: "PHP",
-            order: "desc"
-        );
-
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertSame(200, $response->getStatusCode());
+        $response = $controller->getListRepository($request);
 
         $decodedContent = json_decode($response->getContent(), true);
+
         $this->assertEquals($expectedData, $decodedContent);
     }
 
-    public function testGetListRepositoryWithPagination()
+   public function testGitHubApiQueryIsBuiltCorrectly(): void
     {
         $page = 3;
         $perPage = 10;
-
-        $expectedData = [
-            'total_count' => 1000,
-            'items' => [
-                ['full_name' => 'repo/name1'],
-                ['full_name' => 'repo/name2'],
-            ]
-        ];
-
-        $responseMock = $this->createMock(ResponseInterface::class);
-        $responseMock->expects($this->once())
-            ->method('toArray')
-            ->willReturn($expectedData);
 
         $clientMock = $this->createMock(HttpClientInterface::class);
 
@@ -66,34 +95,39 @@ class FindRepositoryTest extends TestCase
             ->with(
                 'GET',
                 'https://api.github.com/search/repositories',
-              $this->callback(function ($options) use ($page, $perPage) {
-                    return isset($options['query']) &&
-                        $options['query']['page'] === $page &&
-                        $options['query']['per_page'] === $perPage &&
-                        str_contains($options['query']['q'], 'language:PHP') &&
-                        str_contains($options['query']['q'], 'stars:>=0') &&
-                        $options['query']['sort'] === 'stars' &&
-                        $options['query']['order'] === 'desc' &&
-                        isset($options['headers']['User-Agent']) &&
-                        $options['headers']['User-Agent'] === 'SymfonyApp';
-                })
+                $this->anything() // nie sprawdzamy od razu, robimy to w callbacku
             )
-            ->willReturn($responseMock);
+            ->willReturnCallback(function ($method, $url, $options) use ($page, $perPage) {
+                // Debug - pokaż przekazane opcje
+                fwrite(STDERR, print_r($options, true));
+
+                // Sprawdzenie poszczególnych elementów query
+                TestCase::assertSame($page, $options['query']['page']);
+                TestCase::assertSame($perPage, $options['query']['per_page']);
+                TestCase::assertStringContainsString('language:PHP', $options['query']['q']);
+                TestCase::assertStringContainsString('stars:>=0', $options['query']['q']);
+                TestCase::assertSame('stars', $options['query']['sort']);
+                TestCase::assertSame('desc', $options['query']['order']);
+                TestCase::assertSame('SymfonyApp', $options['headers']['User-Agent']);
+
+                // Mock odpowiedzi
+                $responseMock = TestCase::createMock(ResponseInterface::class);
+                $responseMock->method('toArray')->willReturn(['items' => []]);
+                return $responseMock;
+            });
 
         $controller = new FindRepository($clientMock);
 
-        $response = $controller->getListRepository(
-            $page,
-            $perPage,
-            null,
-            'PHP',
-            'desc'
-        );
+        $request = new Request(query: [
+            'page' => $page,
+            'per_page' => $perPage,
+            'DateCreate' => null,
+            'ProgramingLangage' => 'PHP',
+            'order' => 'desc'
+        ]);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertSame(200, $response->getStatusCode());
-
-        $decodedContent = json_decode($response->getContent(), true);
-        $this->assertEquals($expectedData, $decodedContent);
+        // Wywołanie kontrolera
+        $controller->getListRepository($request);
     }
+
 }

@@ -2,6 +2,7 @@
 namespace App\Tests\Controller;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+
 use Ramsey\Uuid\UuidInterface;
 use App\Service\FavoritesService;
 
@@ -16,7 +17,7 @@ class FavoritesControllerTest  extends TestCase
 
     public function testAddFavoriteAddsRepositoryForUser(): void
     {
-        $userId = Uuid::uuid4()->toString(); // Uuid jako string
+        $userId = Uuid::uuid4()->toString(); 
         $repoId = 123;
 
         $this->service->addFavorite($userId, $repoId);
@@ -26,7 +27,7 @@ class FavoritesControllerTest  extends TestCase
 
     public function testAddFavoriteDoesNotDuplicateRepository(): void
     {
-        $userId = Uuid::uuid4()->toString(); // Uuid jako string
+        $userId = Uuid::uuid4()->toString(); 
         $repoId = 123;
 
         $this->service->addFavorite($userId, $repoId);
