@@ -41,6 +41,7 @@ class FavoritesService
         $json = json_encode($this->favorites, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         file_put_contents($this->filePath, $json);
     }
+    
     /**
      * Dodaje repozytorium do listy ulubionych dla danego użytkownika.
      * Jeśli użytkownik lub repozytorium jeszcze nie istnieje w zbiorze, zostanie dodane.

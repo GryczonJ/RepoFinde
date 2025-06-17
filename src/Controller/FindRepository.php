@@ -104,6 +104,7 @@ class FindRepository extends AbstractController
                     ['error' => 'Nieprawidłowy format daty. Oczekiwany: Y-m-d.'], Response::HTTP_BAD_REQUEST
                 );
             }
+            $filters[] = 'created:>'. $dateCreate->format('Y-m-d');
         }
         
         if (empty($filters)) {
@@ -111,7 +112,7 @@ class FindRepository extends AbstractController
         }
 
         $query = implode(' ', $filters);
-
+        
          try {
                 $response = $this->client->request('GET', $url, [
                         'query' => [
