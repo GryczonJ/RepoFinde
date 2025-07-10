@@ -2,14 +2,13 @@
 
 namespace App\Controller;
 
-use OpenApi\Annotations as OA;
 use App\Service\FavoritesService;
+use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\Response; 
+use Symfony\Component\HttpFoundation\Response;
 
 class FavoritesController extends AbstractController
 {
@@ -29,48 +28,48 @@ class FavoritesController extends AbstractController
     }
 
     #[Route('/favorites/add', name: 'addFavorite', methods: ['POST'])]
-   /**
-     * @OA\Post(
-     *     path="/favorites/add",
-     *     summary="Dodaje repozytorium do ulubionych użytkownika",
-     *     description="Dodaje repozytorium do ulubionych użytkownika na podstawie identyfikatora użytkownika i identyfikatora repozytorium.",
-     *     tags={"Favorites"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         content={
-     *             @OA\MediaType(
-     *                 mediaType="application/json",
-     *                 @OA\Schema(
-     *                     required={"userId", "repositoryId"},
-     *                     @OA\Property(property="userId", type="string", description="Unikalny identyfikator użytkownika"),
-     *                     @OA\Property(property="repositoryId", type="string", description="Identyfikator repozytorium z GitHub")
-     *                 )
-     *             )
-     *         }
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Repozytorium dodane do ulubionych",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Repozytorium zostało dodane do ulubionych.")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Błąd walidacji danych",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string", example="userId i repositoryId są wymagane")
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Nieoczekiwany błąd serwera",
-     *          @OA\JsonContent(
-     *          @OA\Property(property="error", type="string", example="Nieoczekiwany błąd.")
-     *          )
-     *      )
-     * )
-     */
+    /**
+      * @OA\Post(
+      *     path="/favorites/add",
+      *     summary="Dodaje repozytorium do ulubionych użytkownika",
+      *     description="Dodaje repozytorium do ulubionych użytkownika na podstawie identyfikatora użytkownika i identyfikatora repozytorium.",
+      *     tags={"Favorites"},
+      *     @OA\RequestBody(
+      *         required=true,
+      *         content={
+      *             @OA\MediaType(
+      *                 mediaType="application/json",
+      *                 @OA\Schema(
+      *                     required={"userId", "repositoryId"},
+      *                     @OA\Property(property="userId", type="string", description="Unikalny identyfikator użytkownika"),
+      *                     @OA\Property(property="repositoryId", type="string", description="Identyfikator repozytorium z GitHub")
+      *                 )
+      *             )
+      *         }
+      *     ),
+      *     @OA\Response(
+      *         response=200,
+      *         description="Repozytorium dodane do ulubionych",
+      *         @OA\JsonContent(
+      *             @OA\Property(property="message", type="string", example="Repozytorium zostało dodane do ulubionych.")
+      *         )
+      *     ),
+      *     @OA\Response(
+      *         response=400,
+      *         description="Błąd walidacji danych",
+      *         @OA\JsonContent(
+      *             @OA\Property(property="error", type="string", example="userId i repositoryId są wymagane")
+      *         )
+      *     ),
+      *      @OA\Response(
+      *          response=500,
+      *          description="Nieoczekiwany błąd serwera",
+      *          @OA\JsonContent(
+      *          @OA\Property(property="error", type="string", example="Nieoczekiwany błąd.")
+      *          )
+      *      )
+      * )
+      */
     public function addFavorite(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -82,7 +81,7 @@ class FavoritesController extends AbstractController
         }
 
         $status = $this->favoritesService->addFavorite($userId, $repositoryId);
-        
+
         if ($status === 'added') {
             return new JsonResponse(['message' => 'Repozytorium zostało dodane do ulubionych.'], 200);
         }

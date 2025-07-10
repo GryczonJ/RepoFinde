@@ -7,12 +7,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use OpenApi\Annotations as OA;
-
 use DateTime;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response; 
-
-
+use Symfony\Component\HttpFoundation\Response;
 
 class FindRepository extends AbstractController
 {
@@ -22,7 +19,7 @@ class FindRepository extends AbstractController
      * @var HttpClientInterface
      */
     private HttpClientInterface $client;
- 
+
     /**
      * Konstruktor kontrolera. Wstrzykuje klienta HTTP.
      *
@@ -89,58 +86,58 @@ class FindRepository extends AbstractController
         $order = $request->query->get('order', 'desc');
         $ProgramingLangage = $request->query->get('ProgramingLangage');
         $DateCreateString = $request->query->get('DateCreate');
-        
+
         $url = 'https://api.github.com/search/repositories';
-       
-       $filters = [];
+
+        $filters = [];
 
         if ($ProgramingLangage) {
-                $filters[] = 'language:' . $ProgramingLangage;
-            }
+            $filters[] = 'language:' . $ProgramingLangage;
+        }
         if ($DateCreateString) {
-             $dateCreate = DateTime::createFromFormat('Y-m-d', $DateCreateString);
+            $dateCreate = DateTime::createFromFormat('Y-m-d', $DateCreateString);
             if (!$dateCreate) {
                 return new JsonResponse(
-                    ['error' => 'Nieprawidłowy format daty. Oczekiwany: Y-m-d.'], Response::HTTP_BAD_REQUEST
+                    ['error' => 'Nieprawidłowy format daty. Oczekiwany: Y-m-d.'],
+                    Response::HTTP_BAD_REQUEST
                 );
             }
             $filters[] = 'created:>'. $dateCreate->format('Y-m-d');
         }
-        
+
         if (empty($filters)) {
             $filters[] = 'stars:>=0';
         }
 
         $query = implode(' ', $filters);
-        
-         try {
-                $response = $this->client->request('GET', $url, [
-                        'query' => [
-                            'q' => $query,
-                            'sort' => 'stars',
-                            'order' => $order,
-                            'per_page' => $per_page,
-                            'page' => $page,
-                        ],
-                        'headers' => [
-                            'Accept' => 'application/vnd.github+json',
-                            'User-Agent' => 'SymfonyApp',
-                            'Authorization' => 'Bearer ' . $_ENV['GITHUB_TOKEN'], 
-                        ],
-                    ]);
 
-                $data = $response->toArray();
-                return new JsonResponse($data, Response::HTTP_OK);
+        try {
+            $response = $this->client->request('GET', $url, [
+                    'query' => [
+                        'q' => $query,
+                        'sort' => 'stars',
+                        'order' => $order,
+                        'per_page' => $per_page,
+                        'page' => $page,
+                    ],
+                    'headers' => [
+                        'Accept' => 'application/vnd.github+json',
+                        'User-Agent' => 'SymfonyApp',
+                        'Authorization' => 'Bearer ' . $_ENV['GITHUB_TOKEN'],
+                    ],
+                ]);
 
-            } 
-            catch (\Exception $e) {
-                return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
-            }
+            $data = $response->toArray();
+            return new JsonResponse($data, Response::HTTP_OK);
+
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
     }
 }
 /*
     Instrukcje uruchomienia aplikacji Symfony:
-    symfony serve 
+    symfony serve
 
     generowanie dokumentacji OpenAPI:
     php bin/console nelmio:apidoc:dump --format=json > openapi.json
