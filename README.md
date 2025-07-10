@@ -31,17 +31,17 @@ Aplikacja umożliwia:
    cd RepoFinde
 
 2. **Utworzenie plików konfiguracyjnych**
-na podstwie pliku .env-example utowżyć plik .env i uzupełnić puste luki. (podać klucz do API GitHub)
+na podstwie pliku .env-example utwórz plik .env i uzupełnić puste luki. (podać klucz do API GitHub)
 
-3. **Uruchomienie kontenerów**
+3. **Uzupełnij plik .env**
+Pole: GITHUB_TOKEN=''
+
+4. **Uruchomienie kontenerów**
 docker-compose up -d --build
 
-4. **Dostęp do aplikacji**
+5. **Dostęp do aplikacji**
 
 http://localhost:8080 <= tu już działa endpoint
-
-5. **Uzupełnij plik .env**
-Pole: GITHUB_TOKEN=''
 
 6. **Dokumentacjia**
 http://localhost:8080/api/doc
