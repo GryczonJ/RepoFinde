@@ -1,16 +1,18 @@
 <?php
 
 namespace App\Service;
+
 use Ramsey\Uuid\Uuid;
 use OpenApi\Annotations as OA;
+
 class FavoritesService
 {
-     /**
-     * Tablica ulubionych repozytoriów przypisana do identyfikatora użytkownika.
-     * Kluczem jest identyfikator użytkownika (string), a wartością tablica ID repozytoriów (int[]).
-     *
-     * @var array<string, int[]>
-     */
+    /**
+    * Tablica ulubionych repozytoriów przypisana do identyfikatora użytkownika.
+    * Kluczem jest identyfikator użytkownika (string), a wartością tablica ID repozytoriów (int[]).
+    *
+    * @var array<string, int[]>
+    */
     private array $favorites = [];
 
     /** @var string Ścieżka do pliku JSON z ulubionymi */
@@ -41,7 +43,7 @@ class FavoritesService
         $json = json_encode($this->favorites, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         file_put_contents($this->filePath, $json);
     }
-    
+
     /**
      * Dodaje repozytorium do listy ulubionych dla danego użytkownika.
      * Jeśli użytkownik lub repozytorium jeszcze nie istnieje w zbiorze, zostanie dodane.
@@ -59,7 +61,7 @@ class FavoritesService
 
         if (!in_array($repositoryId, $this->favorites[$userId], true)) {
             $this->favorites[$userId][] = $repositoryId;
-            return 'added'; 
+            return 'added';
         }
         return 'already_exists';
     }
