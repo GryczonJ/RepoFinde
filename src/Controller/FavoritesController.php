@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Route('/users')]
 class FavoritesController extends AbstractController
 {
     /**
@@ -92,16 +93,16 @@ class FavoritesController extends AbstractController
         return new JsonResponse(['error' => 'Nieoczekiwany błąd.'], 500);
     }
 
-    #[Route('favorites', name: 'get_favorites', methods: ['GET'])]
+    #[Route('/{userId}/favorites', name: 'get_favorites', methods: ['GET'])]
     /**
      * @OA\Get(
-     *     path="/favorites",
+     *     path="/{userId}/favorites",
      *     summary="Zwraca listę ulubionych repozytoriów dla użytkownika",
      *     description="Zwraca listę ulubionych repozytoriów dla użytkownika.",
      *     tags={"Favorites"},
      *     @OA\Parameter(
      *         name="userId",
-     *         in="query",
+     *         in="path",
      *         required=true,
      *         description="Unikalny identyfikator użytkownika",
      *         @OA\Schema(type="string")
@@ -121,9 +122,9 @@ class FavoritesController extends AbstractController
      *     )
      * )
      */
-    public function getFavorites(Request $request): JsonResponse
+    public function getFavorites(string $userId): JsonResponse
     {
-        $userId = $request->get('userId');
+        //$userId = $request->get('userId');
 
         if (!$userId) {
             return new JsonResponse(['error' => 'userId jest wymagany'], 400);
