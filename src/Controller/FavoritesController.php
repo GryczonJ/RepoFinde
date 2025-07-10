@@ -28,7 +28,7 @@ class FavoritesController extends AbstractController
         $this->favoritesService = $favoritesService;
     }
 
-    #[Route('/users/{userId}/favorites', name: 'add_favorite', methods: ['POST'])]
+    #[Route('/{userId}/favorites', name: 'add_favorite', methods: ['POST'])]
     /**
      * @OA\Post(
      *     path="/users/{userId}/favorites",
@@ -102,7 +102,7 @@ class FavoritesController extends AbstractController
     #[Route('/{userId}/favorites', name: 'get_favorites', methods: ['GET'])]
     /**
      * @OA\Get(
-     *     path="/{userId}/favorites",
+     *     path="/users/{userId}/favorites",
      *     summary="Zwraca listę ulubionych repozytoriów dla użytkownika",
      *     description="Zwraca listę ulubionych repozytoriów dla użytkownika.",
      *     tags={"Favorites"},
