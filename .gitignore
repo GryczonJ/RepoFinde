@@ -19,3 +19,6 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 .env
+.env
+.php-cs-fixer.cache
+src/Service/favorites.json
