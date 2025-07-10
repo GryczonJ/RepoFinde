@@ -15,7 +15,7 @@ nelmio_api_doc:
             description: This is the API documentation for RepoFinder.
             version: 1.0.0
         servers:
-            - url: http://localhost:8000
+            - url: http://localhost:8080
     areas:
         default:
             path_patterns: [ ^/api, ^/repositories,  ^/favorites ]
