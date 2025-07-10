@@ -36,12 +36,14 @@ na podstwie pliku .env-example utwórz plik .env i uzupełnić puste luki. (poda
 3. **Uzupełnij plik .env**
 Pole: GITHUB_TOKEN=''
 
-4. **Uruchomienie kontenerów**
+4. **Wykonać Komędę**
+composer install
+
+5. **Uruchomienie kontenerów**
 docker-compose up -d --build
 
-5. **Dostęp do aplikacji**
-
+6. **Dostęp do aplikacji**
 http://localhost:8080 <= tu już działa endpoint
 
-6. **Dokumentacjia**
+7. **Dokumentacjia**
 http://localhost:8080/api/doc
