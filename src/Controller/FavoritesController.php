@@ -10,7 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/users')]
 class FavoritesController extends AbstractController
 {
     /**
@@ -28,7 +27,7 @@ class FavoritesController extends AbstractController
         $this->favoritesService = $favoritesService;
     }
 
-    #[Route('/{userId}/favorites', name: 'add_favorite', methods: ['POST'])]
+    #[Route('/users/{userId}/favorites', name: 'addFavorite', methods: ['POST'])]
     /**
      * @OA\Post(
      *     path="/users/{userId}/favorites",
@@ -99,7 +98,7 @@ class FavoritesController extends AbstractController
         return new JsonResponse(['error' => 'Nieoczekiwany błąd.'], 500);
     }
 
-    #[Route('/{userId}/favorites', name: 'get_favorites', methods: ['GET'])]
+    #[Route('/users/{userId}/favorites', name: 'getFavorites', methods: ['GET'])]
     /**
      * @OA\Get(
      *     path="/users/{userId}/favorites",
